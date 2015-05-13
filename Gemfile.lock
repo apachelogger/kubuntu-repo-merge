@@ -1,0 +1,12 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    git (1.2.9.1)
+    logger-colors (1.0.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  git
+  logger-colors
