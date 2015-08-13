@@ -35,6 +35,7 @@ end
 
 origins = []
 target = nil
+create = true
 
 parser = OptionParser.new do |opts|
   opts.banner = "Usage: #{opts.program_name} --origin ORIGIN --target TARGET GIT-DEBIAN-SUBDIR"
@@ -48,8 +49,14 @@ parser = OptionParser.new do |opts|
   end
 
   opts.on('-t TARGET_BRANCH', '--target BARNCH',
-          'The target branch to merge into') do |v|
+          'The target branch to merge into.') do |v|
     target = v
+  end
+
+  opts.on('--[no-]create',
+          'Create the target branch if it does not exist yet.' \
+          ' [default: on]') do |v|
+    create = v
   end
 end
 parser.parse!
@@ -66,6 +73,12 @@ logger.level = Logger::INFO
 
 logger.warn "For component #{COMPONENT} we are going to merge #{origins}" \
             " into #{target}."
+if create
+  logger.warn "We are going to create missing #{target} branches from a" \
+              ' matching origin.'
+else
+  logger.warn "We are NOT going to create missing #{target} branches."
+end
 logger.warn 'Pushing does not happen until after you had a chance to inspect' \
             ' the results.'
 
@@ -106,7 +119,7 @@ Dir.mktmpdir('stabilizer') do |tmpdir|
         git.checkout(target)
         log.warn "Merging #{origin} ⇢ #{target}"
         git.merge(origin, "Merging #{origin} into #{target}\n\nNOCI")
-      else
+      elsif create
         git.checkout(origin)
         log.warn "Creating #{origin} ⇢ #{target}"
         git.checkout(target, new_branch: true)
